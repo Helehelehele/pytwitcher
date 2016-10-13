@@ -1,3 +1,4 @@
+import asyncio
 from collections import namedtuple
 
 
@@ -45,3 +46,15 @@ def decode(tagstring):
         tags[key] = value
 
     return tags
+
+def future(func):
+    """
+    Return a future instead of None.
+    """
+    def wrapper(self, *args, **kwargs):
+        future = func(self, *args, **kwargs)
+        if future is None:
+            future = asyncio.Future(loop=self.loop)
+            future.set_result(True)
+        return future
+    return wrapper
