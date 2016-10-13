@@ -1,4 +1,5 @@
 import asyncio
+import random
 import signal
 import ssl
 
@@ -16,6 +17,8 @@ class IrcObject:
         'flood_delay': 30,
         'flood_rate_elevated': 100,
         'flood_rate_normal': 20,
+        'nick': None,
+        'password': None,
         'ssl': True,
     }
 
@@ -82,8 +85,12 @@ class IrcObject:
 
     def start_handshake(self):
         self.send('CAP REQ :{}'.format(' '.join('twitch.tv/{}'.format(cap) for cap in self.CAPABILITIES)))
-        self.send('PASS {}'.format(self.config.password))
-        self.send('NICK {}'.format(self.config.nick))
+        if not self.config.nick:
+            # Anonymous login
+            self.send('NICK justinfan{}'.format(random.randrange(999999)))
+        else:
+            self.send('PASS {}'.format(self.config.password))
+            self.send('NICK {}'.format(self.config.nick))
 
     def send_line(self, data):
         f = asyncio.Future(loop=self.loop)
