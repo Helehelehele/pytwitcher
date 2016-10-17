@@ -3,6 +3,8 @@ import random
 import signal
 import ssl
 
+import certifi
+
 from . import protocol
 from . import utils
 
@@ -48,13 +50,10 @@ class IrcObject:
 
     def get_connection_data(self):
         if self.config.ssl:
-            # TODO: ship the twitch ssl crt and use it with an option in case
-            # a weird system where there are no default certs (or use certifi)
-            # can specify cadata or cafile
             return {
                 'host': self.HOST,
                 'port': 443,
-                'ssl': ssl.create_default_context(),
+                'ssl': ssl.create_default_context(cafile=certifi.where()),
             }
         else:
             return {

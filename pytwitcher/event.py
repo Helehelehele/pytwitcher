@@ -40,7 +40,7 @@ MODE = Raw('MODE', r':(?P<mask>jtv) (?P<event>MODE) (?P<target>\S+) (?P<modes>\S
 
 PRIVMSG = Raw('PRIVMSG', r'(?:@(?P<tags>\S+) )?:(?P<mask>[^!]+)(?:\S+ )(?P<event>PRIVMSG) (?P<channel>\S+) :(?P<data>.+)')
 WHISPER = Raw('WHISPER', r'(?:@(?P<tags>\S+) )?:(?P<mask>[^!]+)(?:\S+ )(?P<event>WHISPER) (?P<me>\S+) :(?P<data>.+)')
-NOTICE = Raw('NOTICE', r'(?:@(?P<tags>\S+) )?:(?P<mask>[^!]+)(?:\S+ )(?P<event>NOTICE) (?P<target>\S+) :(?P<data>.+)')
+NOTICE = Raw('NOTICE', r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twitch.tv) (?P<event>NOTICE) (?P<target>\S+) :(?P<data>.+)')
 USERNOTICE = Raw('USERNOTICE', r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twitch.tv) (?P<event>USERNOTICE) (?P<target>\S+) :(?P<data>.+)')
 
 HOSTTARGET = Raw('HOSTTARGET', r':(?P<mask>tmi.twitch.tv) HOSTTARGET (?P<hosting_channel>\S+) :(?P<target_channel>\S+) (?P<number>\d+)')
