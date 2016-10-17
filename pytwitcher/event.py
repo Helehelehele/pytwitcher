@@ -49,7 +49,7 @@ CLEARCHAT = Raw('CLEARCHAT', r':(?P<mask>tmi.twitch.tv) CLEARCHAT (?P<target>\S+
 
 USERSTATE = Raw('USERSTATE', r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twitch.tv) (?P<event>USERSTATE) (?P<target>\S+)')
 GLOBALUSERSTATE = Raw('GLOBALUSERSTATE', r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twitch.tv) (?P<event>GLOBALUSERSTATE)')
-ROOMSTATE = Raw('USERSTATE', r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twitch.tv) (?P<event>ROOMSTATE) (?P<target>\S+)')
+ROOMSTATE = Raw('ROOMSTATE', r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twitch.tv) (?P<event>ROOMSTATE) (?P<target>\S+)')
 
 RECONNECT = Raw('RECONNECT', r'RECONNECT')
 
