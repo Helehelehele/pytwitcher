@@ -1,11 +1,16 @@
 import asyncio
+from collections import defaultdict
+import importlib
 import random
 import signal
 import ssl
+import sys
+import traceback
 
 import certifi
 
 from . import protocol
+from . import registry
 from . import utils
 
 
@@ -24,7 +29,7 @@ class IrcObject:
         'ssl': True,
     }
 
-    def __init__(self, loop=None, **config):
+    def __init__(self, loop: asyncio.BaseEventLoop = None, **config):
         if loop is None:
             try:
                 loop = asyncio.get_event_loop()
@@ -36,17 +41,79 @@ class IrcObject:
         self.config = utils.Config(**dict(self.DEFAULTS, **config))
 
         self.encoding = self.config.encoding
+        self.registry = registry.Registry()
         self.queue = asyncio.Queue(loop=self.loop)
 
         asyncio.ensure_future(self.process_queue(), loop=self.loop)
 
-    def notify(self, event_name, *args, **kwargs):
+    def load_plugin(self, name: str):
+        if name in self.registry.plugins:
+            return
+
+        lib = importlib.import_module(name)
+        if not hasattr(lib, 'setup'):
+            del lib
+            del sys.modules[name]
+            raise ValueError('plugin does not have a setup function')
+
+        lib.setup(self)
+
+    def unload_plugin(self, name: str):
         # TODO
         pass
 
-    def dispatch(self, data):
-        # TODO
-        pass
+    # registry shortcuts
+
+    def add_plugin(self, plugin):
+        self.registry.add_plugin(plugin)
+
+    def add_listener(self, func, name=None):
+        self.registry.add_listener(func, name=name)
+
+    def remove_listener(self, func, name=None):
+        self.registry.remove_listener(func, name=name)
+
+    def recompile(self):
+        self.registry.recompile(self.config)
+
+    def add_irc_event(self, event, insert=False):
+        self.registry.add_irc_event(event, config=self.config, insert=insert)
+
+    def remove_irc_event(self, event, insert=False):
+        self.registry.remove_irc_event(event, insert=insert)
+
+    async def on_error(self, event_method, exc, *args, **kwargs):
+        traceback.print_exc()
+
+    async def _run_listener(self, coro, listener_name, *args, **kwargs):
+        try:
+            await coro(*args, **kwargs)
+        except asyncio.CancelledError:
+            pass
+        except Exception as exc:
+            try:
+                await self.on_error(listener_name, exc, *args, **kwargs)
+            except asyncio.CancelledError:
+                pass
+
+    def notify(self, listener_name, *args, **kwargs):
+        async_listener = 'on_' + listener_name
+        sync_listener = 'handle_' + listener_name
+
+        if sync_listener in self.registry.listeners:
+            for func in self.registry.listeners[sync_listener]:
+                # FIXME: doesn't handle errors
+                func(*args, **kwargs)
+
+        if async_listener in self.registry.listeners:
+            for coro in self.registry.listeners[async_listener]:
+                asyncio.ensure_future(self._run_listener(coro, listener_name, *args, **kwargs), loop=self.loop)
+
+    def process_data(self, data):
+        for match, events in self.registry.get_event_matches(data):
+            match = match.groupdict()
+            for event in events:
+                asyncio.ensure_future(event.callback(**match), loop=self.loop)
 
     def get_connection_data(self):
         if self.config.ssl:
@@ -68,7 +135,7 @@ class IrcObject:
         )
         task.add_done_callback(self.connection_made)
 
-    def connection_made(self, future):
+    def connection_made(self, future: asyncio.Future):
         # Close the old one (in case of reconnections)
         if hasattr(self, 'protocol'):
             self.protocol.close()
@@ -80,7 +147,7 @@ class IrcObject:
         else:
             self.protocol = protocol
             self.start_handshake()
-            self.notify('connection_made')
+            self.notify('connection_attempted')
 
     def start_handshake(self):
         self.send('CAP REQ :{}'.format(' '.join('twitch.tv/{}'.format(cap) for cap in self.CAPABILITIES)))
@@ -97,10 +164,12 @@ class IrcObject:
         return f
 
     async def process_queue(self):
+        flood_rate = self.config.flood_delay / self.config.flood_rate_normal
         while True:
            future, data = await self.queue.get()
            future.set_result(True)
            self.send(data)
+           # TODO: flood_rate calculation according to user state
            await asyncio.sleep(flood_rate, loop=self.loop)
 
     def send(self, data):
@@ -108,6 +177,8 @@ class IrcObject:
             self.protocol.write(data)
         except AttributeError:
             # Not connected yet
+            # FIXME: during reconnection, everything is lost, probably have to
+            # repush into the queue at the right place
             pass
 
     def add_signal_handlers(self):
@@ -133,7 +204,7 @@ class IrcObject:
         # Cleanup
         self.loop.stop()
 
-    def run(self, forever=True):
+    def run(self, forever: bool = True):
         self.create_connection()
         self.add_signal_handlers()
 

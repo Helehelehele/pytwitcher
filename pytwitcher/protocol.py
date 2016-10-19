@@ -16,7 +16,7 @@ class IrcProtocol(asyncio.Protocol):
     def data_received(self, data):
         data = self.decode(data)
         for line in data.split('\r\n')[:-1]:
-            self.factory.dispatch(line)
+            self.factory.process_data(line)
 
     def encode(self, data):
         if isinstance(data, str):
