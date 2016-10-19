@@ -3,15 +3,30 @@ Define all server events that the server can send us.
 Everything else will get dropped.
 """
 
-class Raw:
-    __slots__ = ('name', 're')
+from collections import namedtuple
+import re
 
-    name = None
-    re = None
+from . import utils
 
-    def __init__(self, name, regexp):
-        self.name = name
-        self.re = regexp
+
+Raw = namedtuple('Raw', 'name, re')
+
+
+class event:
+    def __init__(self, regexp, callback=None):
+        self.regexp = regexp
+        self.callback = callback
+
+    @property
+    def key(self):
+        return getattr(self.regexp, 're', self.regexp)
+
+    def compile(self, config: utils.Config = None):
+        regexp = self.key.format(**config._asdict())
+        return re.compile(regexp).fullmatch
+
+    def __call__(self, func):
+        self.callback = func
 
 
 # Numeric Replies
