@@ -1,1 +1,1 @@
-certifi
+certifi==2016.9.26
