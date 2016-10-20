@@ -5,6 +5,8 @@ class IrcProtocol(asyncio.Protocol):
     def __init__(self, factory):
         self.factory = factory
         self.encoding = factory.encoding
+        self.transport = None
+        self.closed = True
 
     def connection_made(self, transport):
         self.transport = transport

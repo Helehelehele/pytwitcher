@@ -52,9 +52,9 @@ def future(func):
     Return a future instead of None.
     """
     def wrapper(self, *args, **kwargs):
-        future = func(self, *args, **kwargs)
-        if future is None:
-            future = asyncio.Future(loop=self.loop)
-            future.set_result(True)
-        return future
+        fut = func(self, *args, **kwargs)
+        if fut is None:
+            fut = asyncio.Future(loop=self.loop)
+            fut.set_result(True)
+        return fut
     return wrapper

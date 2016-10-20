@@ -4,13 +4,16 @@ Registry is the object handling all external events definition.
 import asyncio
 from collections import defaultdict, deque
 import inspect
+from typing import Tuple
 
 from . import utils
 from . import event
 
 
 class Registry:
-    def __init__(self):
+    def __init__(self, config: utils.Config):
+        self.config = config
+
         # key = on_event_name value = list of callbacks to call with the data
         # things that come from irc
         self.irc_events_re = deque()
@@ -54,7 +57,7 @@ class Registry:
         for name, member in inspect.getmembers(plugin):
             # Remove IRC events
             if isinstance(member, event.event):
-                self.remove_irc_event(event)
+                self.remove_irc_event(member)
             # Remove listeners
             elif name.startswith(('on_', 'handle_')):
                 self.remove_listener(member)
@@ -89,13 +92,13 @@ class Registry:
             except ValueError:
                 pass
 
-    def add_irc_event(self, event, config: utils.Config, insert: bool = False):
-        if not asyncio.iscoroutinefunction(event.callback):
+    def add_irc_event(self, irc_event: event.event, insert: bool = False):
+        if not asyncio.iscoroutinefunction(irc_event.callback):
             raise ValueError('Event handlers must be coroutines')
 
         # key is used to link irc_events_re and irc_events
-        matcher = event.compile(config)
-        key = event.key  # = regexp
+        matcher = irc_event.compile(self.config)
+        key = irc_event.key  # = regexp
 
         if key not in self.irc_events:
             if insert:
@@ -104,20 +107,20 @@ class Registry:
                 self.irc_events_re.append((key, matcher))
 
         if insert:
-            self.irc_events[key].appendleft(event)
+            self.irc_events[key].appendleft(irc_event)
         else:
-            self.irc_events[key].append(event)
+            self.irc_events[key].append(irc_event)
 
 
-    def remove_irc_event(self, event, insert: bool = False):
+    def remove_irc_event(self, irc_event: event.event):
         all_events = self.irc_events
-        key = event.key
+        key = irc_event.key
         delete = []
 
         if key in all_events:
             # someone else registered this regex but not this event
             try:
-                all_events[key].remove(event)
+                all_events[key].remove(irc_event)
             except ValueError:
                 pass
 
@@ -129,13 +132,14 @@ class Registry:
         self.irc_events_re = [r for r in self.irc_events_re if r[0] not in delete]
 
     def recompile(self, config: utils.Config):
+        self.config = config
+
         events_re = self.irc_events_re
         events = self.irc_events
 
         new_events_re = deque()
-        for key, matcher in events_re:
+        for key, _ in events_re:
             # All events compile to the same matcher, just take the first one
             new_events_re.append((key, events[key][0].compile(config)))
 
-        self.events_re = new_events_re
-
+        self.irc_events_re = new_events_re

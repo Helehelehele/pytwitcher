@@ -41,7 +41,7 @@ class IrcObject:
         self.config = utils.Config(**dict(self.DEFAULTS, **config))
 
         self.encoding = self.config.encoding
-        self.registry = registry.Registry()
+        self.registry = registry.Registry(self.config)
         self.queue = asyncio.Queue(loop=self.loop)
 
         asyncio.ensure_future(self.process_queue(), loop=self.loop)
@@ -77,10 +77,10 @@ class IrcObject:
         self.registry.recompile(self.config)
 
     def add_irc_event(self, event, insert=False):
-        self.registry.add_irc_event(event, config=self.config, insert=insert)
+        self.registry.add_irc_event(event, insert=insert)
 
-    def remove_irc_event(self, event, insert=False):
-        self.registry.remove_irc_event(event, insert=insert)
+    def remove_irc_event(self, event):
+        self.registry.remove_irc_event(event)
 
     async def on_error(self, event_method, exc, *args, **kwargs):
         traceback.print_exc()
@@ -138,14 +138,15 @@ class IrcObject:
     def connection_made(self, future: asyncio.Future):
         # Close the old one (in case of reconnections)
         if hasattr(self, 'protocol'):
-            self.protocol.close()
+            self.protocol.close()  # pylint: disable=access-member-before-definition
 
         try:
-            _, protocol = future.result()
+            _, proto = future.result()
         except Exception as e:
+            # TODO: log
             self.loop.call_later(3, self.create_connection)
         else:
-            self.protocol = protocol
+            self.protocol = proto  # pylint: disable=attribute-defined-outside-init
             self.start_handshake()
             self.notify('connection_attempted')
 

@@ -43,7 +43,7 @@ ERR_UNKNOWNCOMMAND = Raw('ERR_UNKNOWNCOMMAND', r':(?P<srv>\S+) 421 (?P<me>\S+) :
 
 # Message Replies
 
-CAP_ACK = Raw('CAP_ACK', ':(?P<srv>\S+) CAP * ACK :(?P<data>.*)')
+CAP_ACK = Raw('CAP_ACK', r':(?P<srv>\S+) CAP * ACK :(?P<data>.*)')
 
 PING = Raw('PING', r'PING :?(?P<data>.*)')
 PONG = Raw('PONG', r':(?P<server>\S+) PONG (?P=server)(?: :)?(?P<data>.*)')
@@ -53,12 +53,18 @@ PART = Raw('PART', r':(?P<mask>\S+) PART (?P<channel>\S+)')
 
 MODE = Raw('MODE', r':(?P<mask>jtv) (?P<event>MODE) (?P<target>\S+) (?P<modes>\S+)( (?P<data>\S+))?')
 
-PRIVMSG = Raw('PRIVMSG', r'(?:@(?P<tags>\S+) )?:(?P<mask>[^!]+)(?:\S+ )(?P<event>PRIVMSG) (?P<channel>\S+) :(?P<data>.+)')
+PRIVMSG = Raw('PRIVMSG',
+              r'(?:@(?P<tags>\S+) )?:(?P<mask>[^!]+)(?:\S+ )(?P<event>PRIVMSG) (?P<channel>\S+) :(?P<data>.+)')
 WHISPER = Raw('WHISPER', r'(?:@(?P<tags>\S+) )?:(?P<mask>[^!]+)(?:\S+ )(?P<event>WHISPER) (?P<me>\S+) :(?P<data>.+)')
-NOTICE = Raw('NOTICE', r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twitch.tv) (?P<event>NOTICE) (?P<target>\S+) :(?P<data>.+)')
-USERNOTICE = Raw('USERNOTICE', r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twitch.tv) (?P<event>USERNOTICE) (?P<target>\S+) :(?P<data>.+)')
+NOTICE = Raw('NOTICE',
+             r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twitch.tv) (?P<event>NOTICE) (?P<target>\S+) :(?P<data>.+)')
+USERNOTICE = Raw('USERNOTICE',
+                 r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twitch.tv) (?P<event>USERNOTICE) (?P<target>\S+) :(?P<data>.+)')
 
-HOSTTARGET = Raw('HOSTTARGET', r':(?P<mask>tmi.twitch.tv) HOSTTARGET (?P<hosting_channel>\S+) :(?P<target_channel>\S+) (?P<number>\d+)')
+HOSTTARGET = Raw(
+    'HOSTTARGET',
+    r':(?P<mask>tmi.twitch.tv) HOSTTARGET (?P<hosting_channel>\S+) :(?P<target_channel>\S+) (?P<number>\d+)'
+)
 
 CLEARCHAT = Raw('CLEARCHAT', r':(?P<mask>tmi.twitch.tv) CLEARCHAT (?P<target>\S+)( :(?P<data>\S+))?')
 
@@ -67,4 +73,3 @@ GLOBALUSERSTATE = Raw('GLOBALUSERSTATE', r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twi
 ROOMSTATE = Raw('ROOMSTATE', r'(?:@(?P<tags>\S+) )?:(?P<mask>tmi.twitch.tv) (?P<event>ROOMSTATE) (?P<target>\S+)')
 
 RECONNECT = Raw('RECONNECT', r'RECONNECT')
-
