@@ -22,7 +22,7 @@ install:
   - "pip install -e ."
 
 script:
-  - "pylint --rcfile .pylintrc pytwitcher"
+  # - "pylint --rcfile .pylintrc pytwitcher"
   - "py.test --cov-report term-missing --cov=pytwitcher --junit-xml=tests.xml tests"
 
 after_success:
