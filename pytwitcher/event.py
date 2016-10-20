@@ -30,6 +30,7 @@ class event:
 
     def __call__(self, func):
         self.callback = func
+        return self
 
 
 # Numeric Replies
