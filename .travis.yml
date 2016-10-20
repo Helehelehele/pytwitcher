@@ -1,11 +1,29 @@
 language: python
+
 python:
   - "3.5"
   - "3.5-dev"
   - "3.6-dev"
   - "nightly"
+
+matrix:
+  allow_failures:
+    - python: "3.6-dev"
+    - python: "nightly"
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
 install:
   - "pip install -r requirements.txt"
   - "pip install -r requirements_dev.txt"
+  - "pip install coveralls"
+  - "pip install -e ."
+
 script:
-  - "pylint --rcfile .pylintrc pytwitcher/"
+  - "pylint --rcfile .pylintrc pytwitcher"
+  - "py.test --cov-report term-missing --cov=pytwitcher --junit-xml=tests.xml tests"
+
+after_success:
+  - "coveralls"
