@@ -166,11 +166,11 @@ class IrcObject:
     async def process_queue(self):
         flood_rate = self.config.flood_delay / self.config.flood_rate_normal
         while True:
-           future, data = await self.queue.get()
-           future.set_result(True)
-           self.send(data)
-           # TODO: flood_rate calculation according to user state
-           await asyncio.sleep(flood_rate, loop=self.loop)
+            future, data = await self.queue.get()
+            future.set_result(True)
+            self.send(data)
+            # TODO: flood_rate calculation according to user state
+            await asyncio.sleep(flood_rate, loop=self.loop)
 
     def send(self, data):
         try:
