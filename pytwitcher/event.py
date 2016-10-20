@@ -22,7 +22,10 @@ class event:
         return getattr(self.regexp, 're', self.regexp)
 
     def compile(self, config: utils.Config = None):
-        regexp = self.key.format(**config._asdict())
+        if config is not None:
+            regexp = self.key.format(**config._asdict())
+        else:
+            regexp = self.key
         return re.compile(regexp).fullmatch
 
     def __call__(self, func):
