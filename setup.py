@@ -2,9 +2,8 @@ import os
 from setuptools import setup
 
 
-def read(fname):
-    with open(os.path.join(os.path.dirname(__file__), fname)) as f:
-        return f.read()
+with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
+    long_description =  f.read()
 
 setup(
     name='pytwitcher',
@@ -18,6 +17,7 @@ setup(
     long_description=read('README.md'),
     classifiers=[
         'Development Status :: 1 - Planning',
+        'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3.5',
     ]
