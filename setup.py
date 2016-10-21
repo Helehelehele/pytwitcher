@@ -14,7 +14,7 @@ setup(
     license='MIT',
     url='https://github.com/adongy/pytwitcher',
     packages=['pytwitcher'],
-    long_description=read('README.md'),
+    long_description=long_description,
     classifiers=[
         'Development Status :: 1 - Planning',
         'Intended Audience :: Developers',
