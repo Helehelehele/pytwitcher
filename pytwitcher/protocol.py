@@ -1,4 +1,7 @@
 import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class IrcProtocol(asyncio.Protocol):
@@ -18,6 +21,7 @@ class IrcProtocol(asyncio.Protocol):
     def data_received(self, data):
         data = self.decode(data)
         for line in data.split('\r\n')[:-1]:
+            logger.debug('< {}'.format(data))
             self.factory.process_data(line)
 
     def encode(self, data):
@@ -26,6 +30,7 @@ class IrcProtocol(asyncio.Protocol):
         return data
 
     def write(self, data):
+        logger.debug('> {}'.format(data))
         if data is not None:
             data = self.encode(data)
             if not data.endswith(b'\r\n'):
@@ -33,6 +38,7 @@ class IrcProtocol(asyncio.Protocol):
             self.transport.write(data)
 
     def connection_lost(self, exc):
+        logger.warning('Connection lost')
         self.factory.notify('connection_lost')
         if not self.closed:
             self.close()
@@ -40,6 +46,7 @@ class IrcProtocol(asyncio.Protocol):
 
     def close(self):
         if not self.closed:
+            logger.debug('Closing protocol')
             try:
                 self.transport.close()
             finally:

@@ -4,10 +4,14 @@ Registry is the object handling all external events definition.
 import asyncio
 from collections import defaultdict, deque
 import inspect
+import logging
 from typing import Tuple
 
 from . import utils
 from . import event
+
+
+logger = logging.getLogger(__name__)
 
 
 class Registry:
@@ -32,6 +36,7 @@ class Registry:
                 yield match, events[key]
 
     def reload_plugin(self, name: str):
+        logging.debug('Reloading plugin %s', name)
         plugin = self.remove_plugin(name)
         if plugin is None:
             raise ValueError('Plugin is not loaded')
@@ -73,6 +78,7 @@ class Registry:
 
     def add_listener(self, func, name: str = None):
         name = name or func.__name__
+        logger.debug('Adding %s to %s listener', func, name)
 
         if name.startswith('on_') and not asyncio.iscoroutinefunction(func):
             raise ValueError('`on_` listeners must be coroutines')
@@ -85,6 +91,7 @@ class Registry:
 
     def remove_listener(self, func, name: str = None):
         name = name or func.__name__
+        logger.debug('Removing %s from %s listener', func, name)
 
         if name in self.listeners:
             try:
@@ -132,6 +139,7 @@ class Registry:
         self.irc_events_re = [r for r in self.irc_events_re if r[0] not in delete]
 
     def recompile(self, config: utils.Config):
+        logging.info('Recompiling registry using config %s', config)
         self.config = config
 
         events_re = self.irc_events_re
