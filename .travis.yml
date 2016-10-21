@@ -25,5 +25,9 @@ script:
   # - "pylint --rcfile .pylintrc pytwitcher"
   - "py.test --cov-report term-missing --cov=pytwitcher --junit-xml=tests.xml tests"
 
+notifications:
+  webhooks:
+    - secure: "nyqPWBiT0OKJmgpL1mLrwoCHdd6EM1u4vVr+V1oqwE28RzrtfOuTdEm+59kTcBJy/W38XbSz+Hd5GPs4yrcmEs4xpBtECh89iMaRFgncUlA8pWh8FiIYqu5guukOGhnB4TT6Nr7Y6GC2KEEZerUpXI6OWdp6G3Ukjpw00NVC0m1E8KQk27CUuX9nLUj75OnPZNsCsm28OUaHNTEMH0eZcqVhqcfBw9P2TC6qnkzRVAsFe90Tg/qRYPxSl9FPms5rqwoPBTef/mqQb/7jMpm+eBmWbe/bo427Ugsa1tI0v5WkgR0GEGFvosZn9gSikhrwXz2H6cZDjHLxMJKbXe/q20OvGkgB+ncrXFbQxUs+FfoKYIwd0PYI4fVxgAMbhaSeKPoNvy4OMjmzyszHz9tFc6k39jRzVvHIBQwAMpGM31rtlGzFL+sWD5tyudWMFAnfckgvbaPVYL+aeLdsggDlPAL3zNjb+NLFbkKT/2pbu66fiT35zmLpgLlC64p8tUJiARu6x2n93yLj32ZdvWUI/boBLNe/sdaJymYqkNe3Hc140YkxYc9TXgP7s8Y5K8WZUfE5Uo3yFuuoitiKMVYmqP37cBSFwZBeBAfB+2FK7qLFywjajvtdc6gEJ9r08EropYzfOMR1VMjkM1Y4xXA3uoSz3FqiKrbHn0NC1CNXG64="
+
 after_success:
   - "coveralls"
