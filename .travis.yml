@@ -1,33 +1,25 @@
 language: python
-
 python:
-  - "3.5"
-  - "3.5-dev"
-  - "3.6-dev"
-  - "nightly"
-
+- '3.5'
+- 3.5-dev
+- 3.6-dev
+- nightly
 matrix:
   allow_failures:
-    - python: "3.6-dev"
-    - python: "nightly"
-
+  - python: 3.6-dev
+  - python: nightly
 cache:
   directories:
-    - $HOME/.cache/pip
-
+  - "$HOME/.cache/pip"
 install:
-  - "pip install -r requirements.txt"
-  - "pip install -r requirements_dev.txt"
-  - "pip install coveralls"
-  - "pip install -e ."
-
+- pip install -r requirements.txt
+- pip install -r requirements_dev.txt
+- pip install coveralls
+- pip install -e .
 script:
-  # - "pylint --rcfile .pylintrc pytwitcher"
-  - "py.test --cov-report term-missing --cov=pytwitcher --junit-xml=tests.xml tests"
-
+- py.test --cov-report term-missing --cov=pytwitcher --junit-xml=tests.xml tests
 notifications:
   webhooks:
-    - secure: "nyqPWBiT0OKJmgpL1mLrwoCHdd6EM1u4vVr+V1oqwE28RzrtfOuTdEm+59kTcBJy/W38XbSz+Hd5GPs4yrcmEs4xpBtECh89iMaRFgncUlA8pWh8FiIYqu5guukOGhnB4TT6Nr7Y6GC2KEEZerUpXI6OWdp6G3Ukjpw00NVC0m1E8KQk27CUuX9nLUj75OnPZNsCsm28OUaHNTEMH0eZcqVhqcfBw9P2TC6qnkzRVAsFe90Tg/qRYPxSl9FPms5rqwoPBTef/mqQb/7jMpm+eBmWbe/bo427Ugsa1tI0v5WkgR0GEGFvosZn9gSikhrwXz2H6cZDjHLxMJKbXe/q20OvGkgB+ncrXFbQxUs+FfoKYIwd0PYI4fVxgAMbhaSeKPoNvy4OMjmzyszHz9tFc6k39jRzVvHIBQwAMpGM31rtlGzFL+sWD5tyudWMFAnfckgvbaPVYL+aeLdsggDlPAL3zNjb+NLFbkKT/2pbu66fiT35zmLpgLlC64p8tUJiARu6x2n93yLj32ZdvWUI/boBLNe/sdaJymYqkNe3Hc140YkxYc9TXgP7s8Y5K8WZUfE5Uo3yFuuoitiKMVYmqP37cBSFwZBeBAfB+2FK7qLFywjajvtdc6gEJ9r08EropYzfOMR1VMjkM1Y4xXA3uoSz3FqiKrbHn0NC1CNXG64="
-
+    secure: UIMuIliI2ug8Iz33LN4+aIhmn+vm9u9F2WwpORa4BtP4K4Ll/X9H5R9fCDKAzb5Y+jbYx6rX1/Wnpi/unfn+5nXwkkrfgoxib0JDPRMR6mwtL4KYshmCENzYHyrINClULciY4xbOmH9medwDorZ8OM/A0oc0iUjRB8wNuE3wQnLp12byvTIINIxqUlY+14k/BJYBrPJq520JSQOdr2vKittBo3YVwv1m8ayqEjqaRTr3K9fj0UCcCAIcxiQPEx2nUDVLrmDzUrYhIE7AOCTBjx3oqhMK0urqOF4dwSQ2lOEDFQS+SK+M5iW8l5ATv3Q/2XFdAIcKa/wX7lkvc5OBg3HcvEunFMHZ6lF+HkeEh9Dq2INki0IwydpfmuYVARHko90Ofz333KkHitsDCmm92mjeRO+iy4E2VlnbgKPBZc/5TWXZ033Yd3c2uDLWzvdG7PFSobc/fEtO4/UjpYPUo6FXn274GsMlSLG+aF39e4bqmGGKBDKPeIj1TcZjFf7AfBKZuc85zvmqSMKXTpwY5YC2fuxZRM2zFV/rvGvzKWpXohWyAolZMsi4r4/ynMyqhOfbGqeXmoJ0y4ER8xuUvIZPoZbpAEuyQGHPGhzxJF3OPogMPaYXMxZpOIMwsAuvVCcKhcU1tRoEuVrTH4Xn1/Ly4jEyEdnMB6tUcqJgQIY=
 after_success:
-  - "coveralls"
+- coveralls
