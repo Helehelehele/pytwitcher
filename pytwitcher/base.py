@@ -47,7 +47,7 @@ class IrcObject:
         self.registry = registry.Registry(self.config)
         self.queue = asyncio.Queue(loop=self.loop)
 
-        asyncio.ensure_future(self.process_queue(), loop=self.loop)
+        asyncio.ensure_future(self._process_queue(), loop=self.loop)
 
     def load_plugin(self, name: str):
         logger.debug('Trying to load %s', name)
@@ -123,7 +123,7 @@ class IrcObject:
             for event in events:
                 asyncio.ensure_future(event.callback(**match), loop=self.loop)
 
-    def get_connection_data(self):
+    def _get_connection_data(self):
         if self.config.ssl:
             logger.debug('Connecting using SSL')
             return {
@@ -141,12 +141,12 @@ class IrcObject:
     def create_connection(self):
         logger.debug('Scheduling new connection')
         task = asyncio.ensure_future(
-            self.loop.create_connection(lambda: protocol.IrcProtocol(self), **self.get_connection_data()),
+            self.loop.create_connection(lambda: protocol.IrcProtocol(self), **self._get_connection_data()),
             loop=self.loop,
         )
-        task.add_done_callback(self.connection_made)
+        task.add_done_callback(self._connection_made)
 
-    def connection_made(self, future: asyncio.Future):
+    def _connection_made(self, future: asyncio.Future):
         logger.info('Received connection to Twitch')
         # Close the old one (in case of reconnections)
         if hasattr(self, 'protocol'):
@@ -160,10 +160,10 @@ class IrcObject:
             self.loop.call_later(3, self.create_connection)
         else:
             self.protocol = proto  # pylint: disable=attribute-defined-outside-init
-            self.start_handshake()
+            self._start_handshake()
             self.notify('connection_attempted')
 
-    def start_handshake(self):
+    def _start_handshake(self):
         self.send('CAP REQ :{}'.format(' '.join('twitch.tv/{}'.format(cap) for cap in self.CAPABILITIES)))
         if not self.config.nick:
             logger.debug('Anonymous login requested')
@@ -179,7 +179,7 @@ class IrcObject:
         self.queue.put_nowait((f, data))
         return f
 
-    async def process_queue(self):
+    async def _process_queue(self):
         flood_rate = self.config.flood_delay / self.config.flood_rate_normal
         while True:
             future, data = await self.queue.get()
@@ -197,7 +197,7 @@ class IrcObject:
             # FIXME: during reconnection, everything is lost, probably have to
             # repush into the queue at the right place
 
-    def add_signal_handlers(self):
+    def _add_signal_handlers(self):
         try:
             self.loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
         except (RuntimeError, AttributeError):
@@ -224,7 +224,7 @@ class IrcObject:
 
     def run(self, forever: bool = True):
         self.create_connection()
-        self.add_signal_handlers()
+        self._add_signal_handlers()
 
         if forever:
             self.loop.run_forever()
