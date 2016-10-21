@@ -2,7 +2,7 @@ import asyncio
 from collections import namedtuple
 
 
-ALLOWED_KEYS = (
+Config = namedtuple('Config', [
     'encoding',
     'flood_delay',
     'flood_rate_elevated',
@@ -10,9 +10,7 @@ ALLOWED_KEYS = (
     'nick',
     'password',
     'ssl',
-)
-
-Config = namedtuple('Config', ALLOWED_KEYS)
+])
 
 
 _UNESCAPES = (
