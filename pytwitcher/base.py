@@ -40,6 +40,8 @@ class IrcObject:
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
 
+        # TOOD: say in the docs that we take ownership of the loop, we close it
+        # ourselves in run()
         self.loop = loop
         self.config = utils.Config(**dict(self.DEFAULTS, **config))
 
@@ -228,3 +230,15 @@ class IrcObject:
 
         if forever:
             self.loop.run_forever()
+            self._cleanup()
+
+    def _cleanup(self):
+        # Cancel remaining tasks and close the loop
+        gathered = asyncio.gather(*asyncio.Task.all_tasks(loop=self.loop))
+        gathered.cancel()
+        try:
+            self.loop.run_until_complete(gathered)
+        except asyncio.CancelledError:
+            pass
+
+        self.loop.close()
