@@ -175,9 +175,9 @@ class IrcObject:
             self.send('NICK {}'.format(self.config.nick))
 
     def send_line(self, data):
-        f = asyncio.Future(loop=self.loop)
-        self.queue.put_nowait((f, data))
-        return f
+        fut = self.loop.create_future()
+        self.queue.put_nowait((fut, data))
+        return fut
 
     async def _process_queue(self):
         flood_rate = self.config.flood_delay / self.config.flood_rate_normal

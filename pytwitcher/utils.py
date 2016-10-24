@@ -52,7 +52,7 @@ def future(func):
     def wrapper(self, *args, **kwargs):
         fut = func(self, *args, **kwargs)
         if fut is None:
-            fut = asyncio.Future(loop=self.loop)
+            fut = self.loop.create_future()
             fut.set_result(True)
         return fut
     return wrapper
