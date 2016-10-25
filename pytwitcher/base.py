@@ -52,27 +52,34 @@ class IrcObject:
         asyncio.ensure_future(self._process_queue(), loop=self.loop)
 
     def load_plugin(self, name: str):
+        # NOTE: name is full path to the plugin, eg path.Plugin, not path
         logger.debug('Trying to load %s', name)
         if name in self.registry.plugins:
             return
 
-        lib = importlib.import_module(name)
-        if not hasattr(lib, 'setup'):
-            del lib
-            del sys.modules[name]
-            raise ValueError('plugin does not have a setup function')
+        module_name, class_name = name.rsplit('.', 1)
 
-        lib.setup(self)
-        logger.debug('Loaded %s', name)
+        try:
+            module = importlib.import_module(module_name)
+        except ImportError:
+            raise ValueError('%s is not importable', module_name)
+
+        try:
+            klass = getattr(module, class_name)
+        except AttributeError:
+            del module
+            del sys.modules[module_name]
+            raise ValueError('%s has no attribute %s', module_name, class_name)
+
+        self.registry.add_plugin(klass(self))
+        logger.info('Loaded `%s`', name)
 
     def unload_plugin(self, name: str):
-        # TODO
-        pass
+        plugin = self.registry.remove_plugin(name)
+        del plugin
+        logger.info('Unloaded `%s`', name)
 
     # registry shortcuts
-
-    def add_plugin(self, plugin):
-        self.registry.add_plugin(plugin)
 
     def add_listener(self, func, name=None):
         self.registry.add_listener(func, name=name)

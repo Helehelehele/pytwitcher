@@ -1,4 +1,4 @@
-from .. import event
+from pytwitcher import event
 
 class UserList:
     def __init__(self, bot):
@@ -15,7 +15,3 @@ class UserList:
     @event.event(event.PRIVMSG)
     def privmsg(self):
         pass
-
-
-def setup(bot):
-    bot.add_cog(UserList(bot))
