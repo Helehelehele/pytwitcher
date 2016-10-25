@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class Registry:
-    def __init__(self, config: utils.Config):
+    def __init__(self, config: dict):
         self.config = config
 
         # key = on_event_name value = list of callbacks to call with the data
@@ -138,7 +138,7 @@ class Registry:
 
         self.irc_events_re = [r for r in self.irc_events_re if r[0] not in delete]
 
-    def recompile(self, config: utils.Config):
+    def recompile(self, config: dict):
         logging.info('Recompiling registry using config %s', config)
         self.config = config
 

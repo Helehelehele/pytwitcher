@@ -43,9 +43,9 @@ class IrcObject:
         # TOOD: say in the docs that we take ownership of the loop, we close it
         # ourselves in run()
         self.loop = loop
-        self.config = utils.Config(**dict(self.DEFAULTS, **config))
+        self.config = dict(self.DEFAULTS, **config)
 
-        self.encoding = self.config.encoding
+        self.encoding = self.config['encoding']
         self.registry = registry.Registry(self.config)
         self.queue = asyncio.Queue(loop=self.loop)
 
@@ -126,7 +126,7 @@ class IrcObject:
                 asyncio.ensure_future(event.callback(**match), loop=self.loop)
 
     def _get_connection_data(self):
-        if self.config.ssl:
+        if self.config['ssl']:
             logger.debug('Connecting using SSL')
             return {
                 'host': self.HOST,
@@ -167,14 +167,14 @@ class IrcObject:
 
     def _start_handshake(self):
         self.send('CAP REQ :{}'.format(' '.join('twitch.tv/{}'.format(cap) for cap in self.CAPABILITIES)))
-        if not self.config.nick:
+        if not self.config['nick']:
             logger.debug('Anonymous login requested')
             # Anonymous login
             self.send('NICK justinfan{}'.format(random.randrange(999999)))
         else:
             logger.debug('OAuth login requested')
-            self.send('PASS {}'.format(self.config.password))
-            self.send('NICK {}'.format(self.config.nick))
+            self.send('PASS {}'.format(self.config['password']))
+            self.send('NICK {}'.format(self.config['nick']))
 
     def send_line(self, data):
         fut = self.loop.create_future()
@@ -182,7 +182,7 @@ class IrcObject:
         return fut
 
     async def _process_queue(self):
-        flood_rate = self.config.flood_delay / self.config.flood_rate_normal
+        flood_rate = self.config['flood_delay'] / self.config['flood_rate_normal']
         while True:
             future, data = await self.queue.get()
             future.set_result(True)
@@ -219,9 +219,8 @@ class IrcObject:
 
     def SIGINT(self):
         logger.info('Received SIGINT signal')
-        # TODO
+        # TODO: Cleanup our things: close transport
         self.notify('stop')
-        # Cleanup
         self.loop.stop()
 
     def run(self, forever: bool = True):

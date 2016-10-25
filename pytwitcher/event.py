@@ -21,9 +21,9 @@ class event:
     def key(self):
         return getattr(self.regexp, 're', self.regexp)
 
-    def compile(self, config: utils.Config = None):
+    def compile(self, config: dict = None):
         if config is not None:
-            regexp = self.key.format(**config._asdict())
+            regexp = self.key.format(**config)
         else:
             regexp = self.key
         return re.compile(regexp).fullmatch

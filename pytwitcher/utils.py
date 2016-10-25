@@ -1,17 +1,3 @@
-import asyncio
-from collections import namedtuple
-
-
-Config = namedtuple('Config', [
-    'encoding',
-    'flood_delay',
-    'flood_rate_elevated',
-    'flood_rate_normal',
-    'nick',
-    'password',
-    'ssl',
-])
-
 
 _UNESCAPES = (
     (r'\:', ';'),
