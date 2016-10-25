@@ -51,7 +51,7 @@ class Registry:
             if isinstance(member, event.event):
                 self.add_irc_event(member)
             # Register listeners
-            elif name.startswith('on_') or name.startswith('handle_'):
+            elif name.startswith(('on_', 'handle_')):
                 self.add_listener(member)
 
     def remove_plugin(self, name: str):
@@ -80,10 +80,12 @@ class Registry:
         name = name or func.__name__
         logger.debug('Adding %s to %s listener', func, name)
 
-        if name.startswith('on_') and not asyncio.iscoroutinefunction(func):
-            raise ValueError('`on_` listeners must be coroutines')
-        elif name.startswith('handle_') and asyncio.iscoroutinefunction(func):
-            raise ValueError('`handle_` listeners must not be coroutines')
+        if name.startswith('on_'):
+            if not asyncio.iscoroutinefunction(func):
+                raise ValueError('`on_` listeners must be coroutines')
+        elif name.startswith('handle_'):
+            if asyncio.iscoroutinefunction(func):
+                raise ValueError('`handle_` listeners must not be coroutines')
         else:
             raise ValueError('Listeners must start with `on_` or `handle_`')
 
