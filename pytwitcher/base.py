@@ -57,7 +57,7 @@ class IrcObject:
         if name in self.registry.plugins:
             return
 
-        module_name, class_name = name.rsplit('.', 1)
+        module_name, _, class_name = name.rpartition('.')
 
         try:
             module = importlib.import_module(module_name)
